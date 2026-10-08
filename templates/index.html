@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CertForge — Certificate Automation</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f4ee;--card:#fff;--ink:#14213d;--mut:#6b7280;--gold:#c8a24a;--line:#e7e2d3;--ok:#1f8a5b;--r:16px}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1424;--card:#16203a;--ink:#f3efe3;--mut:#9aa6c0;--line:#27324f}}
+*{box-sizing:border-box}body{margin:0;font:15px/1.5 Inter,system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;margin:0}
+header{padding:28px 5vw 8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.logo{font:700 24px Fraunces,serif}.logo b{color:var(--gold)}
+main{padding:12px 5vw 60px;max-width:1280px;margin:auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:22px}
+.hero{display:grid;grid-template-columns:1.1fr 1fr;gap:22px;margin-top:10px}
+@media(max-width:860px){.hero{grid-template-columns:1fr}}
+.hero h1{font-size:clamp(28px,4vw,42px);line-height:1.1;margin:8px 0 10px}
+.hero p{color:var(--mut);margin:0 0 18px}
+.drop{border:2px dashed var(--gold);border-radius:var(--r);padding:34px 16px;text-align:center;cursor:pointer;transition:.2s}
+.drop:hover,.drop.on{background:rgba(200,162,74,.12);transform:translateY(-2px)}
+.drop svg{width:38px;height:38px;stroke:var(--gold)}
+.btn{border:0;border-radius:10px;padding:10px 16px;font:600 14px Inter;cursor:pointer;background:var(--ink);color:var(--bg);transition:.15s}
+.btn:hover{opacity:.88}.btn.gold{background:var(--gold);color:#14213d}.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+input,select,textarea{font:inherit;color:inherit;background:transparent;border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
+input:focus,select:focus,textarea:focus,.btn:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+.steps{display:flex;gap:10px;margin:14px 0 0;flex-wrap:wrap}.steps span{font-size:13px;color:var(--mut);background:var(--card);border:1px solid var(--line);padding:4px 12px;border-radius:99px}
+#app{display:none;margin-top:22px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:18px}
+.stat b{font:700 30px Fraunces,serif;display:block}.stat small{color:var(--mut)}
+.bars{display:flex;gap:4px;height:10px;margin-top:8px;border-radius:9px;overflow:hidden}
+.settings{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--line)}.settings label{font-size:12px;color:var(--mut)}.settings input{margin-top:4px;color:var(--ink)}
+#brand{grid-column:1/-1;display:flex;gap:18px;flex-wrap:wrap;align-items:center}.bk{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mut)}.bk .btn{padding:6px 12px;font-size:13px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.toolbar input[type=search]{flex:1;min-width:180px}.toolbar select,.toolbar #company{width:auto;min-width:150px}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:680px}
+th{text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);padding:8px 10px;border-bottom:1px solid var(--line)}
+td{padding:12px 10px;border-bottom:1px solid var(--line)}tr.row{cursor:pointer}tr.row:hover{background:rgba(200,162,74,.1)}
+.pill{padding:3px 10px;border-radius:99px;font-size:12px;font-weight:600}
+.t-Excellence{background:#fbf0cf;color:#7a5b00}.t-Distinction{background:#dcefe6;color:#17694a}.t-Merit{background:#dde7f7;color:#2a4a85}.t-Completion{background:#eceae3;color:#555}
+.meter{height:6px;background:var(--line);border-radius:9px;width:90px;display:inline-block;vertical-align:middle;margin-right:8px}.meter i{display:block;height:100%;border-radius:9px;background:var(--gold)}
+#drawer{position:fixed;inset:0 0 0 auto;width:min(480px,100%);background:var(--card);border-left:1px solid var(--line);transform:translateX(100%);transition:.3s;padding:24px;overflow:auto;z-index:5;box-shadow:-20px 0 50px rgba(0,0,0,.15)}
+#drawer.open{transform:none}
+.preview{background:#fdfbf5;color:#14213d;border:3px double var(--gold);border-radius:8px;padding:18px;text-align:center;margin:14px 0}
+.preview h2{color:var(--gold);letter-spacing:.1em}.preview .n{font:italic 700 26px Fraunces,serif;margin:6px 0}
+.preview .m{display:flex;gap:6px;justify-content:center;margin-top:10px;flex-wrap:wrap}.preview .m span{background:#14213d;color:#c8a24a;border-radius:6px;padding:4px 8px;font-size:12px}
+.src{font-size:12px;color:var(--ok)}
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:10px;opacity:0;transition:.3s;pointer-events:none;z-index:9}
+#toast.on{opacity:1}.warn{background:#fff4e0;color:#8a5a00;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:13px;display:none}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:s .7s linear infinite;vertical-align:-2px}@keyframes s{to{transform:rotate(360deg)}}
+</style></head><body>
+<header><div class="logo">Cert<b>Forge</b> <small style="font:500 12px Inter;color:var(--mut)">v{{ version }}</small></div><button class="btn ghost" onclick="location.href='/api/sample'">⬇ Sample Excel</button></header>
+<main>
+<section class="hero">
+ <div class="card"><h1>Turn spreadsheets into signed certificates.</h1>
+  <p>Upload candidate performance data. CertForge validates it, ranks achievement tiers, writes personalised citations with AI, and exports print-ready PDFs.</p>
+  <div class="steps"><span>1 Upload</span><span>2 Review</span><span>3 AI citation</span><span>4 Export PDF / ZIP</span></div></div>
+ <div class="drop" id="drop" tabindex="0" role="button" aria-label="Upload Excel file">
+  <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M12 16V4m0 0 4 4m-4-4L8 8M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+  <p><b>Drop .xlsx / .csv here</b><br><small style="color:var(--mut)">or click to browse · columns: Name, Role, Dept, Year of Study, Start Date, End Date, Score…</small></p>
+  <input type="file" id="file" accept=".xlsx,.xls,.csv" hidden></div>
+</section>
+<section id="app">
+ <div class="warn" id="warn"></div>
+ <div class="stats" id="stats"></div>
+ <div class="card">
+  <div class="settings"><b style="grid-column:1/-1">Certificate settings</b>
+   <label>Heading<select id="hm"><option value="tier">By performance (Excellence / Distinction / Merit)</option><option value="completion">Always "Completion"</option></select></label>
+   <label>Company name<input id="company" value="Nexora Technologies Pvt. Ltd."></label>
+   <label>Signatory 1 name<input id="s1n" value="Rajesh Menon"></label><label>Title<input id="s1t" value="Chief Executive Officer"></label>
+   <label>Signatory 2 name<input id="s2n" value="Anitha Krishnan"></label><label>Title<input id="s2t" value="Head of People &amp; Culture"></label>
+   <div id="brand"></div></div>
+  <div class="toolbar">
+   <input type="search" id="q" placeholder="Search name, role, department…" aria-label="Search">
+   <select id="tier"><option value="">All tiers</option><option>Excellence</option><option>Distinction</option><option>Merit</option><option>Completion</option></select>
+   
+   <button class="btn gold" id="zipSel">⬇ ZIP selected</button><button class="btn" id="zipAll">⬇ ZIP all</button>
+  </div>
+  <div class="tw"><table><thead><tr><th><input type="checkbox" id="all" aria-label="Select all"></th><th>Candidate</th><th>Role</th><th>Year</th><th>Period</th><th>Score</th><th>Attendance</th><th>Tier</th></tr></thead><tbody id="rows"></tbody></table></div>
+ </div>
+</section></main>
+<aside id="drawer" aria-label="Certificate details"></aside><div id="toast"></div>
+<script>
+let sid=null,data=[],sel=new Set(),cur=null;const $=s=>document.querySelector(s);
+const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2400)};
+const drop=$('#drop'),file=$('#file');
+drop.onclick=()=>file.click();drop.onkeydown=e=>e.key==='Enter'&&file.click();
+['dragover','dragenter'].forEach(e=>drop.addEventListener(e,x=>{x.preventDefault();drop.classList.add('on')}));
+['dragleave','drop'].forEach(e=>drop.addEventListener(e,x=>{x.preventDefault();drop.classList.remove('on')}));
+drop.addEventListener('drop',e=>up(e.dataTransfer.files[0]));file.onchange=()=>up(file.files[0]);
+async function up(f){if(!f)return;const fd=new FormData();fd.append('file',f);toast('Reading file…');
+ const r=await fetch('/api/upload',{method:'POST',body:fd}),j=await r.json();
+ if(!r.ok)return toast(j.error);sid=j.sid;data=j.rows;sel.clear();
+ const w=$('#warn');w.style.display=j.warnings.length?'block':'none';w.innerHTML='⚠ Skipped: '+j.warnings.join(' · ');
+ $('#app').style.display='block';stats();draw();toast(`${data.length} candidates loaded`);$('#app').scrollIntoView({behavior:'smooth'})}
+function stats(){const n=data.length,avg=data.reduce((a,b)=>a+b.score,0)/n,att=data.reduce((a,b)=>a+b.attendance,0)/n;
+ const c={};data.forEach(d=>c[d.tier]=(c[d.tier]||0)+1);const col={Excellence:'#c8a24a',Distinction:'#1f8a5b',Merit:'#3b6fd1',Completion:'#b9b5a8'};
+ $('#stats').innerHTML=`<div class="card stat"><b>${n}</b><small>Candidates</small></div><div class="card stat"><b>${avg.toFixed(1)}</b><small>Avg score</small></div>
+ <div class="card stat"><b>${att.toFixed(0)}%</b><small>Avg attendance</small></div>
+ <div class="card stat"><b>${c.Excellence||0}</b><small>Excellence tier</small><div class="bars">${Object.keys(col).map(k=>`<i style="flex:${c[k]||0};background:${col[k]}"></i>`).join('')}</div></div>`}
+function draw(){const q=$('#q').value.toLowerCase(),t=$('#tier').value;
+ const list=data.filter(d=>(!t||d.tier===t)&&(d.name+d.role+d.department).toLowerCase().includes(q));
+ $('#rows').innerHTML=list.map(d=>`<tr class="row" data-id="${d.id}"><td><input type="checkbox" class="ck" data-id="${d.id}" ${sel.has(d.id)?'checked':''}></td>
+ <td><b>${d.name}</b><br><small style="color:var(--mut)">${d.email}</small></td><td>${d.role}<br><small style="color:var(--mut)">${d.department}</small></td>
+ <td>${d.year||'—'}</td><td><small>${d.start?d.start+' → '+d.end:'—'}</small></td><td><span class="meter"><i style="width:${d.score}%"></i></span>${d.score}</td><td>${d.attendance}%</td><td><span class="pill t-${d.tier}">${d.tier}</span></td></tr>`).join('')||'<tr><td colspan=8>No matches</td></tr>'}
+$('#q').oninput=draw;$('#tier').onchange=draw;
+$('#rows').onclick=e=>{const ck=e.target.closest('.ck');if(ck){ck.checked?sel.add(+ck.dataset.id):sel.delete(+ck.dataset.id);return}
+ const tr=e.target.closest('tr.row');if(tr)open(+tr.dataset.id)};
+$('#all').onchange=e=>{data.forEach(d=>e.target.checked?sel.add(d.id):sel.delete(d.id));draw()};
+const qs=()=>['company','s1n','s1t','s2n','s2t','hm'].map(k=>k+'='+encodeURIComponent($('#'+k).value)).join('&');
+$('#zipAll').onclick=()=>{location.href=`/api/zip/${sid}?${qs()}`;toast('Building ZIP… AI citations may take a moment')};
+$('#zipSel').onclick=()=>sel.size?location.href=`/api/zip/${sid}?${qs()}&ids=${[...sel]}`:toast('Select candidates first');
+function open(id){cur=data.find(d=>d.id===id);const d=cur;$('#drawer').classList.add('open');
+ $('#drawer').innerHTML=`<div style="display:flex;justify-content:space-between"><h3>${d.name}</h3><button class="btn ghost" onclick="closeD()">✕</button></div>
+ <div class="preview"><small>${$('#company').value.toUpperCase()}</small><h2>CERTIFICATE</h2><small>OF INTERNSHIP ${$('#hm').value==='completion'||d.tier==='Completion'?'COMPLETION':d.tier.toUpperCase()}</small><div class="n">${d.name}</div><small>${d.role} · ${d.department}${d.year?' · '+(/year/i.test(d.year)?d.year:'Year '+d.year):''}</small>${d.start?`<br><small>${d.start} → ${d.end}</small>`:''}
+ <p id="cit" style="font-style:italic;font-size:13px">${d.citation||'Generate an AI citation below, or one is created automatically on export.'}</p>
+ <div class="m"><span>${d.start?d.start+' → '+d.end:d.tier}</span></div><small style="display:block;margin-top:8px;opacity:.6">${d.cert_id} · ${d.date}</small></div>
+ <label style="font-size:13px;color:var(--mut)">Citation (editable)</label><textarea id="ct" rows="4">${d.citation}</textarea>
+ <div class="src" id="src"></div><div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+ <button class="btn gold" id="ai">✨ Generate with AI</button><button class="btn ghost" id="sv">Save text</button><button class="btn" id="dl">⬇ PDF</button></div>`;
+ $('#ai').onclick=genAI;$('#sv').onclick=save;$('#dl').onclick=async()=>{await save(true);location.href=`/api/pdf/${sid}/${cur.id}?${qs()}`}}
+function closeD(){$('#drawer').classList.remove('open')}
+async function genAI(){const b=$('#ai');b.innerHTML='<span class="spin"></span> Writing…';
+ const r=await fetch(`/api/citation/${sid}/${cur.id}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({company:$('#company').value})}),j=await r.json();
+ cur.citation=j.citation;$('#ct').value=j.citation;$('#cit').textContent=j.citation;b.textContent='✨ Regenerate';
+ $('#src').textContent=j.source==='ai'?'✓ Written by Claude':'Template used — set ANTHROPIC_API_KEY to enable AI'}
+async function save(q){cur.citation=$('#ct').value;$('#cit').textContent=cur.citation;
+ await fetch(`/api/citation/${sid}/${cur.id}/save`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({citation:cur.citation})});q===true||toast('Saved')}
+const KINDS=[['logo','Company logo'],['seal','Seal'],['sig1','Signature 1'],['sig2','Signature 2']];
+function brand(){fetch('/api/assets').then(r=>r.json()).then(a=>{$('#brand').innerHTML=KINDS.map(([k,l])=>`<div class="bk"><span>${l}</span><label class="btn ghost" style="cursor:pointer">${a[k]?'✓ Replace':'⬆ Upload'}<input type="file" accept="image/png,image/jpeg" hidden data-k="${k}"></label>${a[k]?`<button class="btn ghost" data-rm="${k}" title="Remove">✕</button>`:''}</div>`).join('')})}
+$('#brand').onchange=async e=>{const k=e.target.dataset.k,f=e.target.files[0];if(!k||!f)return;const fd=new FormData();fd.append('file',f);
+ const r=await fetch('/api/asset/'+k,{method:'POST',body:fd});toast(r.ok?'Saved — used in next PDF':'PNG or JPG only');brand()};
+$('#brand').onclick=async e=>{const k=e.target.dataset.rm;if(!k)return;await fetch('/api/asset/'+k,{method:'DELETE'});brand();toast('Removed')};
+brand();
+document.onkeydown=e=>e.key==='Escape'&&closeD();
+</script></body></html>
